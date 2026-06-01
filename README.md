@@ -84,7 +84,7 @@ MADE FOR CODEALPHA: https://www.linkedin.com/company/codealpha-/
 
 - 🌐 Portfolio: https://allen745.github.io/
 - 💻 GitHub: https://github.com/allen745
-- 🔗 LinkedIn: https://www.linkedin.com/in/allen-christian-708545409/
+- 🔗 LinkedIn: https://www.linkedin.com/company/codealpha/posts/?feedView=all
 
 ---
 
