@@ -25,7 +25,7 @@ from sklearn.metrics import (accuracy_score, precision_score, recall_score,
                              f1_score, roc_auc_score, confusion_matrix,
                              classification_report, roc_curve)
 
-# ── 1. Load Datasets ──────────────────────────────────────────────────────────
+
 def load_heart_disease():
     """Heart Disease Dataset — UCI Repository (synthetic realistic version)"""
     np.random.seed(42)
@@ -45,7 +45,7 @@ def load_heart_disease():
     ca          = np.random.randint(0, 5, n)        # major vessels
     thal        = np.random.randint(0, 4, n)
 
-    # Disease logic
+    
     risk = (
         (age > 55) * 0.3 +
         (sex == 1) * 0.15 +
@@ -109,7 +109,7 @@ def load_cancer():
     df["target"] = data.target
     return df, "Breast Cancer", ["Malignant", "Benign"]
 
-# ── 2. EDA ────────────────────────────────────────────────────────────────────
+
 def run_eda(datasets):
     print("\n [2/5] Running Exploratory Data Analysis...")
     fig, axes = plt.subplots(3, 3, figsize=(16, 13))
@@ -119,7 +119,7 @@ def run_eda(datasets):
     for row, (df, name, labels) in enumerate(datasets):
         target_col = "target" if "target" in df.columns else "Outcome"
 
-        # Class distribution
+        
         counts = df[target_col].value_counts()
         colors = ["#e74c3c", "#2ecc71"]
         axes[row, 0].pie(counts.values, labels=labels,
@@ -127,7 +127,7 @@ def run_eda(datasets):
                          startangle=90, wedgeprops={"edgecolor": "white"})
         axes[row, 0].set_title(f"{name}\nClass Distribution")
 
-        # Feature correlation with target
+        
         numeric_df = df.select_dtypes(include=[np.number])
         corr_with_target = numeric_df.corr()[target_col].drop(target_col).abs()
         top_features = corr_with_target.nlargest(8)
@@ -138,7 +138,7 @@ def run_eda(datasets):
         axes[row, 1].set_title(f"{name}\nTop Feature Correlations")
         axes[row, 1].set_xlabel("Correlation |value|")
 
-        # Distribution of top feature by class
+        
         top_feat = top_features.index[0]
         for cls, color, label in zip([0, 1], colors, labels):
             subset = df[df[target_col] == cls][top_feat]
@@ -153,7 +153,7 @@ def run_eda(datasets):
     plt.close()
     print("  ✔ EDA saved to 'eda_disease.png'")
 
-# ── 3. Train & Evaluate ───────────────────────────────────────────────────────
+
 def train_evaluate(df, name, labels):
     target_col = "target" if "target" in df.columns else "Outcome"
     X = df.drop(target_col, axis=1).select_dtypes(include=[np.number])
@@ -197,7 +197,7 @@ def train_evaluate(df, name, labels):
     best = max(results, key=lambda r: r["F1-Score"])
     return results, best, X_test_sc, y_test, scaler, X.columns.tolist(), X_train_sc, y_train
 
-# ── 4. Plot All Results ───────────────────────────────────────────────────────
+
 def plot_all_results(all_results):
     print("\n [4/5] Generating result visualizations...")
     fig, axes = plt.subplots(3, 3, figsize=(18, 15))
@@ -223,7 +223,7 @@ def plot_all_results(all_results):
                               bar.get_height() + 0.005,
                               f"{acc:.3f}", ha="center", va="bottom", fontsize=7)
 
-        # ROC curves
+        
         for res, color in zip(results, colors):
             fpr, tpr, _ = roc_curve(y_test, res["probabilities"])
             axes[row, 1].plot(fpr, tpr, color=color, linewidth=1.5,
@@ -247,7 +247,7 @@ def plot_all_results(all_results):
     plt.close()
     print("  ✔ Results saved to 'disease_results.png'")
 
-# ── 5. Predict Function ───────────────────────────────────────────────────────
+
 def predict_disease(best_model_obj, scaler, feature_names, disease_name, labels):
     print(f"\n {'─'*55}")
     print(f"  🏥 {disease_name.upper()} PREDICTOR")
@@ -273,7 +273,7 @@ def predict_disease(best_model_obj, scaler, feature_names, disease_name, labels)
     print(f"  Probability: {proba*100:.1f}%")
     print(f" {'─'*55}\n")
 
-# ── 6. Main ───────────────────────────────────────────────────────────────────
+
 def main():
     print("\n" + "="*60)
     print("   DISEASE PREDICTION FROM MEDICAL DATA")
@@ -281,7 +281,7 @@ def main():
     print("   Allen Stivanson Christian | CA/DF1/110227")
     print("="*60)
 
-    # Load all 3 datasets
+    
     print("\n [1/5] Loading Datasets...")
     heart_df,   heart_name,   heart_labels   = load_heart_disease()
     diabetes_df, diabetes_name, diabetes_labels = load_diabetes()
@@ -297,10 +297,10 @@ def main():
     print(f"  ✔ Diabetes       : {diabetes_df.shape[0]} samples, {diabetes_df.shape[1]-1} features")
     print(f"  ✔ Breast Cancer  : {cancer_df.shape[0]} samples, {cancer_df.shape[1]-1} features")
 
-    # EDA
+    
     run_eda(datasets)
 
-    # Train all models
+    
     print("\n [3/5] Training & Evaluating Models...")
     all_results = []
     best_models = []
@@ -318,10 +318,10 @@ def main():
             marker = " ← BEST" if r["Model"] == best["Model"] else ""
             print(f"  {r['Model']:<22} {r['Accuracy']:>7.4f} {r['F1-Score']:>7.4f} {r['ROC-AUC']:>7.4f}{marker}")
 
-    # Plot results
+    
     plot_all_results(all_results)
 
-    # Final summary
+    
     print("\n" + "="*60)
     print("   FINAL SUMMARY — BEST MODELS")
     print("="*60)
@@ -331,7 +331,7 @@ def main():
         print(f"  {name:<20} {best['Model']:<22} {best['Accuracy']:>9.4f} "
               f"{best['F1-Score']:>8.4f} {best['ROC-AUC']:>8.4f}")
 
-    # Predict for new patient
+    
     print("\n" + "="*60)
     choice = input("\n  Predict for a new patient? (y/n): ").strip().lower()
     if choice == "y":
