@@ -21,7 +21,7 @@ from sklearn.metrics import (accuracy_score, precision_score, recall_score,
                              f1_score, roc_auc_score, confusion_matrix,
                              classification_report, roc_curve)
 
-# ── 1. Generate Synthetic Dataset ─────────────────────────────────────────────
+
 def generate_dataset(n=1000, seed=42):
     """
     Generate a realistic synthetic credit scoring dataset.
@@ -41,7 +41,7 @@ def generate_dataset(n=1000, seed=42):
     loan_amount      = np.random.randint(1000, 50000, n)
     existing_loans   = np.random.randint(0, 5, n)
 
-    # Creditworthy logic: higher score = more likely creditworthy
+    
     score = (
         payment_history * 0.35 +
         (1 - credit_util) * 25 +
@@ -68,7 +68,7 @@ def generate_dataset(n=1000, seed=42):
     })
     return df
 
-# ── 2. Exploratory Data Analysis ──────────────────────────────────────────────
+
 def run_eda(df):
     print("\n" + "="*60)
     print("   EXPLORATORY DATA ANALYSIS")
@@ -80,45 +80,45 @@ def run_eda(df):
     print("\n Feature Statistics:")
     print(df.describe().round(2).to_string())
 
-    # Plot class distribution
+    
     fig, axes = plt.subplots(2, 3, figsize=(15, 10))
     fig.suptitle("Credit Scoring — Exploratory Data Analysis", fontsize=14, fontweight="bold")
 
-    # Class distribution
+    
     df["creditworthy"].value_counts().plot(kind="bar", ax=axes[0,0],
         color=["#e74c3c", "#2ecc71"], edgecolor="black")
     axes[0,0].set_title("Class Distribution")
     axes[0,0].set_xticklabels(["Not Creditworthy", "Creditworthy"], rotation=0)
     axes[0,0].set_ylabel("Count")
 
-    # Income distribution by class
+    
     df.groupby("creditworthy")["income"].plot(kind="hist", ax=axes[0,1],
         alpha=0.6, bins=30, legend=True)
     axes[0,1].set_title("Income Distribution by Class")
     axes[0,1].set_xlabel("Income")
     axes[0,1].legend(["Not Creditworthy", "Creditworthy"])
 
-    # Payment history
+    
     df.groupby("creditworthy")["payment_history"].plot(kind="hist", ax=axes[0,2],
         alpha=0.6, bins=30)
     axes[0,2].set_title("Payment History by Class")
     axes[0,2].set_xlabel("Payment History Score")
     axes[0,2].legend(["Not Creditworthy", "Creditworthy"])
 
-    # Credit utilization
+    
     df.groupby("creditworthy")["credit_utilization"].plot(kind="hist", ax=axes[1,0],
         alpha=0.6, bins=30)
     axes[1,0].set_title("Credit Utilization by Class")
     axes[1,0].set_xlabel("Credit Utilization Ratio")
     axes[1,0].legend(["Not Creditworthy", "Creditworthy"])
 
-    # Correlation heatmap
+    
     corr = df.corr()
     sns.heatmap(corr, annot=True, fmt=".2f", cmap="coolwarm",
                 ax=axes[1,1], linewidths=0.5, annot_kws={"size": 7})
     axes[1,1].set_title("Feature Correlation Heatmap")
 
-    # Age distribution
+    
     df.groupby("creditworthy")["age"].plot(kind="hist", ax=axes[1,2],
         alpha=0.6, bins=20)
     axes[1,2].set_title("Age Distribution by Class")
@@ -130,7 +130,7 @@ def run_eda(df):
     plt.close()
     print("\n ✔ EDA plots saved to 'eda_analysis.png'")
 
-# ── 3. Preprocessing ──────────────────────────────────────────────────────────
+
 def preprocess(df):
     X = df.drop("creditworthy", axis=1)
     y = df["creditworthy"]
@@ -144,7 +144,7 @@ def preprocess(df):
 
     return X_train_sc, X_test_sc, y_train, y_test, scaler, X.columns.tolist()
 
-# ── 4. Train & Evaluate Models ────────────────────────────────────────────────
+
 def evaluate_model(name, model, X_train, X_test, y_train, y_test):
     model.fit(X_train, y_train)
     y_pred  = model.predict(X_test)
@@ -163,12 +163,12 @@ def evaluate_model(name, model, X_train, X_test, y_train, y_test):
         "CV F1": cv, "predictions": y_pred, "probabilities": y_proba
     }
 
-# ── 5. Plot Results ───────────────────────────────────────────────────────────
+
 def plot_results(results, y_test, feature_names, best_model):
     fig, axes = plt.subplots(2, 2, figsize=(14, 11))
     fig.suptitle("Credit Scoring Model — Results", fontsize=14, fontweight="bold")
 
-    # Model comparison bar chart
+    
     metrics = ["Accuracy", "Precision", "Recall", "F1-Score", "ROC-AUC"]
     model_names = [r["Model"] for r in results]
     x = np.arange(len(metrics))
@@ -187,7 +187,7 @@ def plot_results(results, y_test, feature_names, best_model):
     axes[0,0].legend(fontsize=8)
     axes[0,0].set_ylabel("Score")
 
-    # ROC curves
+    
     colors_roc = ["#3498db", "#2ecc71", "#e74c3c", "#f39c12"]
     for res, color in zip(results, colors_roc):
         fpr, tpr, _ = roc_curve(y_test, res["probabilities"])
@@ -199,7 +199,7 @@ def plot_results(results, y_test, feature_names, best_model):
     axes[0,1].set_ylabel("True Positive Rate")
     axes[0,1].legend(fontsize=8)
 
-    # Confusion matrix for best model
+    
     best_res = max(results, key=lambda r: r["F1-Score"])
     cm = confusion_matrix(y_test, best_res["predictions"])
     sns.heatmap(cm, annot=True, fmt="d", cmap="Blues", ax=axes[1,0],
@@ -209,7 +209,7 @@ def plot_results(results, y_test, feature_names, best_model):
     axes[1,0].set_xlabel("Predicted")
     axes[1,0].set_ylabel("Actual")
 
-    # Feature importance (Random Forest)
+   
     if hasattr(best_model, "feature_importances_"):
         importances = best_model.feature_importances_
         indices = np.argsort(importances)[::-1]
@@ -226,7 +226,7 @@ def plot_results(results, y_test, feature_names, best_model):
     plt.close()
     print(" ✔ Results plots saved to 'model_results.png'")
 
-# ── 6. Prediction Function ────────────────────────────────────────────────────
+
 def predict_credit(model, scaler, feature_names):
     print("\n" + "="*60)
     print("   CREDIT SCORE PREDICTOR")
@@ -274,7 +274,7 @@ def predict_credit(model, scaler, feature_names):
         print(f"  Recommendation       : DECLINE LOAN")
     print(f" {'─'*58}\n")
 
-# ── 7. Main ───────────────────────────────────────────────────────────────────
+
 def main():
     print("\n" + "="*60)
     print("   CREDIT SCORING MODEL")
@@ -282,21 +282,21 @@ def main():
     print("   Allen Stivanson Christian | CA/DF1/110227")
     print("="*60)
 
-    # Generate data
+   
     print("\n [1/5] Generating dataset...")
     df = generate_dataset()
     print(f"  ✔ Dataset created: {df.shape[0]} samples, {df.shape[1]-1} features")
 
-    # EDA
+    
     print("\n [2/5] Running Exploratory Data Analysis...")
     run_eda(df)
 
-    # Preprocess
+    
     print("\n [3/5] Preprocessing data...")
     X_train, X_test, y_train, y_test, scaler, feature_names = preprocess(df)
     print(f"  ✔ Train: {len(X_train)} | Test: {len(X_test)}")
 
-    # Train models
+    
     print("\n [4/5] Training & Evaluating Models...")
     models = {
         "Logistic Regression": LogisticRegression(max_iter=1000, random_state=42),
@@ -314,7 +314,7 @@ def main():
         trained_models[name] = model
         print(f"✔ Accuracy: {res['Accuracy']:.3f} | F1: {res['F1-Score']:.3f} | AUC: {res['ROC-AUC']:.3f}")
 
-    # Results summary
+   
     print("\n" + "="*60)
     print("   MODEL COMPARISON RESULTS")
     print("="*60)
@@ -327,17 +327,17 @@ def main():
     best = max(results, key=lambda r: r["F1-Score"])
     print(f"\n 🏆 Best Model: {best['Model']} (F1-Score: {best['F1-Score']:.4f})")
 
-    # Best model report
+    
     print(f"\n Classification Report — {best['Model']}:")
     print(classification_report(y_test, best["predictions"],
                                 target_names=["Not Creditworthy", "Creditworthy"]))
 
-    # Plots
+    
     print("\n [5/5] Generating visualizations...")
     best_model = trained_models[best["Model"]]
     plot_results(results, y_test, feature_names, best_model)
 
-    # Predict for new applicant
+   
     print("\n" + "="*60)
     again = input(" Would you like to predict for a new applicant? (y/n): ").strip().lower()
     if again == "y":
